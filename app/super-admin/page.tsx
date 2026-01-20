@@ -1,6 +1,6 @@
 "use client"
 import { useState, useEffect } from 'react'
-import { ShieldCheck, Building2, User, Mail, Lock, Loader2, List, Plus, Power, Key, Gem, Box, Wrench, Copy, X, Package, Save } from 'lucide-react'
+import { ShieldCheck, Building2, User, Mail, Lock, Loader2, List, Plus, Power, Key, Gem, Box, Wrench, Copy, X, Package, Save, Store } from 'lucide-react'
 
 export default function SuperAdminPage() {
   const [activeTab, setActiveTab] = useState<'LISTA' | 'CREAR'>('LISTA')
@@ -32,11 +32,14 @@ export default function SuperAdminPage() {
   }, [activeTab])
 
   const updateTenant = async (id: string, updates: any) => {
-    // Actualización visual inmediata
+    // Actualización visual inmediata (Optimistic UI)
     setTenants(prev => prev.map(t => t.id === id ? { ...t, ...updates } : t))
+    
+    // Si el modal está abierto, actualizamos también su estado local para que se refleje el cambio en el select
     if (selectedTenant && selectedTenant.id === id) {
         setSelectedTenant({ ...selectedTenant, ...updates })
     }
+
     // Petición al servidor
     await fetch('/api/super-admin/tenants', {
         method: 'PUT',
@@ -179,9 +182,26 @@ export default function SuperAdminPage() {
                              <button onClick={() => updateTenant(selectedTenant.id, { show_tutorial: true })} className="px-3 py-1 bg-blue-200 text-blue-800 font-bold rounded-lg hover:bg-blue-300 text-xs">Reactivar</button>
                         </div>
 
+                        {/* 4. CAMBIAR GIRO (NUEVO) */}
+                        <div className="flex items-center justify-between p-3 bg-purple-50 border border-purple-100 rounded-xl">
+                             <div>
+                                <p className="font-bold text-purple-800 text-sm flex items-center gap-2"><Store size={14}/> Giro del Negocio</p>
+                                <p className="text-[10px] text-purple-600">Actual: {selectedTenant.business_type}</p>
+                             </div>
+                             <select 
+                                value={selectedTenant.business_type} 
+                                onChange={(e) => updateTenant(selectedTenant.id, { business_type: e.target.value })}
+                                className="px-2 py-1 bg-white border border-purple-200 text-purple-900 font-bold rounded-lg text-xs outline-none focus:border-purple-500 cursor-pointer"
+                             >
+                                <option value="panaderia">Panadería</option>
+                                <option value="tortilleria">Tortillería</option>
+                                <option value="pizzeria">Pizzería</option>
+                             </select>
+                        </div>
+
                         <hr className="border-gray-100 my-2"/>
 
-                        {/* 4. AJUSTE DE INVENTARIO (C) */}
+                        {/* 5. AJUSTE DE INVENTARIO (C) */}
                         <div className="bg-red-50 p-4 rounded-xl border border-red-100">
                             <h3 className="font-bold text-red-800 flex items-center gap-2 mb-3 text-sm"><Package size={16}/> Ajuste de Emergencia</h3>
                             <form onSubmit={handleFixInventory} className="space-y-3">
@@ -217,7 +237,7 @@ export default function SuperAdminPage() {
             </div>
         )}
 
-        {/* FORMULARIO DE CREACIÓN (ARREGLADO) */}
+        {/* FORMULARIO DE CREACIÓN */}
         {activeTab === 'CREAR' && (
             <div className="bg-white rounded-3xl p-8 max-w-md mx-auto shadow-2xl animate-in fade-in">
                 <form onSubmit={handleSubmit} className="space-y-4">
@@ -257,7 +277,7 @@ export default function SuperAdminPage() {
                     </div>
                   </div>
 
-                  {/* PIN ADMIN (LO QUE FALTABA) */}
+                  {/* PIN ADMIN */}
                   <div>
                     <label className="text-xs font-bold text-gray-400 uppercase ml-1">PIN Panel Admin (Tienda)</label>
                     <div className="flex items-center gap-3 bg-gray-50 border border-gray-200 p-3 rounded-xl">
@@ -266,7 +286,7 @@ export default function SuperAdminPage() {
                     </div>
                   </div>
 
-                  {/* GIRO DEL NEGOCIO (LO QUE FALTABA) */}
+                  {/* GIRO DEL NEGOCIO */}
                   <div>
                     <label className="text-xs font-bold text-gray-400 uppercase ml-1">Giro del Negocio</label>
                     <div className="flex items-center gap-3 bg-gray-50 border border-gray-200 p-3 rounded-xl">
