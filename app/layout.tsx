@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 // 1. IMPORTAR LA NAVBAR AQUÍ 👇
 import Navbar from "@/components/Navbar"; 
+import { Analytics } from "@vercel/analytics/next"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -50,6 +51,7 @@ export default function RootLayout({
         
         {/* Esto renderiza el resto de tus páginas (children) */}
         {children}
+        <Analytics />
       </body>
     </html>
   );
